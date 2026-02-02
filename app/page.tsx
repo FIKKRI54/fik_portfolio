@@ -4,9 +4,10 @@ import Navbar from "@/components/Navbar";
 import SequenceScroll from "@/components/SequenceScroll";
 import AboutSection from "@/components/AboutSection";
 import BentoGrid from "@/components/BentoGrid";
-import StatsSection from "@/components/StatsSection";
 import TestimonialSlider from "@/components/TestimonialSlider";
-import CTASection from "@/components/CTASection";
+import Timeline from "@/components/Timeline";
+import ContactSection from "@/components/ContactSection";
+import PersonalSection from "@/components/PersonalSection";
 
 export default function Home() {
   return (
@@ -25,15 +26,16 @@ export default function Home() {
       */}
       <div className="relative z-10 bg-black">
         <AboutSection />
+        <PersonalSection />
         <BentoGrid />
-        <StatsSection />
+        <Timeline />
         <TestimonialSlider />
-        <CTASection />
+        <ContactSection />
       </div>
 
       {/* Footer */}
-      <footer className="bg-neutral-950 text-neutral-500 py-12 text-center text-xs tracking-widest uppercase">
-        &copy; 2026 Neuralis Systems. All Rights Reserved.
+      <footer className="bg-white text-neutral-500 py-12 text-center text-xs tracking-widest uppercase border-t border-neutral-200">
+        &copy; 2026 Mohamad Fikri Bin Bukhari. All Rights Reserved.
       </footer>
     </main>
   );

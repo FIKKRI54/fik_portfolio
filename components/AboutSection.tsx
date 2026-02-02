@@ -1,28 +1,36 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Lanyard from "./ui/Lanyard";
 
 export default function AboutSection() {
-    const text = "Neuralis isn't just hardware. It's an extension of your consciousness. Precision-engineered neural interfaces designed to bridge the gap between biological thought and digital execution.";
+    const text = "Final-year Computer Science student seeking an internship placement. Possesses strong communication and leadership skills with a proven ability to work in teams to build full-stack web,system,Ai model and mobile applications.";
     const words = text.split(" ");
 
     return (
-        <section className="min-h-screen bg-black flex items-center justify-center py-20 px-4 md:px-20 relative z-10">
-            <div className="max-w-4xl text-left">
-                <h3 className="text-copper text-sm font-mono mb-8 uppercase tracking-widest">System Overview</h3>
-                <p className="text-3xl md:text-5xl font-medium leading-tight text-neutral-500 flex flex-wrap gap-x-3">
-                    {words.map((word, i) => (
-                        <motion.span
-                            key={i}
-                            whileInView={{ opacity: 1, color: "#fff" }}
-                            viewport={{ margin: "-100px" }}
-                            transition={{ duration: 0.5, delay: i * 0.02 }}
-                            className="transition-colors duration-300"
-                        >
-                            {word}
-                        </motion.span>
-                    ))}
-                </p>
+        <section id="about" className="min-h-screen flex items-center justify-center py-20 px-4 md:px-20 relative z-10 -mt-8" style={{ backgroundColor: '#E8ECED' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto w-full">
+                <div className="text-left">
+                    <h3 className="text-neutral-500 text-sm font-mono mb-8 uppercase tracking-widest">About Me</h3>
+                    <p className="text-3xl md:text-5xl font-medium leading-tight text-neutral-400 flex flex-wrap gap-x-3">
+                        {words.map((word, i) => (
+                            <motion.span
+                                key={i}
+                                whileInView={{ opacity: 1, color: "#171717" }}
+                                viewport={{ margin: "-100px" }}
+                                transition={{ duration: 0.5, delay: i * 0.02 }}
+                                className="transition-colors duration-300"
+                            >
+                                {word}
+                            </motion.span>
+                        ))}
+                    </p>
+                </div>
+
+                {/* Lanyard Interactive Element */}
+                <div className="h-[800px] flex items-center justify-center relative bg-neutral-950 rounded-3xl border border-neutral-800 overflow-hidden">
+                    <Lanyard />
+                </div>
             </div>
         </section>
     );

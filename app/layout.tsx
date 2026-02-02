@@ -10,8 +10,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "NEURALIS | The Hardware of Thought",
-  description: "Next-generation cybernetic interface.",
+  title: "Mohamad Fikri Bin Bukhari",
+  description: "Portfolio of Mohamad Fikri Bin Bukhari",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} antialiased bg-black text-white`}>
+      <body className={`${outfit.variable} antialiased bg-black text-white`} suppressHydrationWarning>
         <LenisScroll>
           {children}
         </LenisScroll>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +11,7 @@ export default function Navbar() {
         open: { opacity: 1, scale: 1 },
     };
 
-    const linkVariants = {
+    const linkVariants: Variants = {
         closed: { y: 20, opacity: 0 },
         open: (i: number) => ({
             y: 0,
@@ -20,13 +20,31 @@ export default function Navbar() {
         }),
     };
 
-    const navLinks = ["Neural Architecture", "System Specs", "Testimonial", "Initialize"];
+    const navLinks = [
+        { name: "Home", id: "hero" },
+        { name: "About", id: "about" },
+        { name: "Experience", id: "experience" },
+        { name: "Education", id: "education" },
+        { name: "Skills", id: "skills" },
+        { name: "Contact", id: "contact" }
+    ];
+
+    const scrollToSection = (id: string) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+            setIsOpen(false);
+        }
+    };
 
     return (
         <>
             <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference text-white">
-                <div className="text-2xl font-bold tracking-tighter uppercase cursor-pointer">
-                    Neuralis
+                <div
+                    className="text-xl md:text-2xl font-bold tracking-tighter uppercase cursor-pointer"
+                    onClick={() => scrollToSection("hero")}
+                >
+                    Fikri
                 </div>
                 <button
                     onClick={() => setIsOpen(!isOpen)}
@@ -50,14 +68,13 @@ export default function Navbar() {
                         <div className="flex flex-col items-center gap-8">
                             {navLinks.map((link, i) => (
                                 <motion.a
-                                    key={link}
-                                    href="#"
+                                    key={link.name}
                                     custom={i}
                                     variants={linkVariants}
-                                    className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500 hover:to-copper transition-all cursor-pointer uppercase tracking-tighter"
-                                    onClick={() => setIsOpen(false)}
+                                    className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500 hover:to-neutral-400 transition-all cursor-pointer uppercase tracking-tighter"
+                                    onClick={() => scrollToSection(link.id)}
                                 >
-                                    {link}
+                                    {link.name}
                                 </motion.a>
                             ))}
                         </div>

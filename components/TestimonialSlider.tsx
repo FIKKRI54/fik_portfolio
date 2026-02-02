@@ -1,60 +1,95 @@
-"use client";
+import LogoLoop from "./ui/LogoLoop";
+import { FaPython, FaReact, FaLaravel, FaJava, FaPhp, FaHtml5, FaCss3Alt, FaGitAlt, FaDatabase } from "react-icons/fa";
+import { SiTypescript, SiCplusplus, SiDart, SiFlutter, SiMysql, SiFirebase, SiGit, SiTailwindcss, SiPostgresql, SiDotnet, SiGithub, SiGitlab, SiAdobephotoshop, SiGradle, SiAndroidstudio } from "react-icons/si";
+import { TbBrandCSharp } from "react-icons/tb";
+import { VscVscode } from "react-icons/vsc";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
-
-const testimonials = [
+const categories = [
     {
-        quote: "The latency is non-existent. It feels like an extension of my own nervous system.",
-        author: "Dr. Aris Thorne",
-        role: "Neural Architect",
+        title: "Languages",
+        skills: [
+            { name: "Python", icon: <FaPython /> },
+            { name: "TypeScript", icon: <SiTypescript /> },
+            { name: "C#", icon: <TbBrandCSharp /> },
+            { name: "PHP", icon: <FaPhp /> },
+            { name: "Java", icon: <FaJava /> },
+            { name: "C++", icon: <SiCplusplus /> },
+            { name: "SQL", icon: <FaDatabase /> },
+            { name: "Dart", icon: <SiDart /> },
+        ]
     },
     {
-        quote: "We've never seen processing power this dense. It's not just faster, it's clairvoyant.",
-        author: "Sarah Jenko",
-        role: "Lead Systems Engineer",
+        title: "Frameworks & Libraries",
+        skills: [
+            { name: "Laravel", icon: <FaLaravel /> },
+            { name: ".NET", icon: <SiDotnet /> },
+            { name: "ASP.NET", icon: <SiDotnet /> },
+            { name: "React", icon: <FaReact /> },
+            { name: "Flutter", icon: <SiFlutter /> },
+            { name: "Tailwind", icon: <SiTailwindcss /> },
+        ]
     },
     {
-        quote: "Neuralis redefined the boundaries of human-machine interaction.",
-        author: "Kaelen Vex",
-        role: "Cyber-Psychologist",
+        title: "Web & Database",
+        skills: [
+            { name: "HTML5", icon: <FaHtml5 /> },
+            { name: "CSS3", icon: <FaCss3Alt /> },
+            { name: "MySQL", icon: <SiMysql /> },
+            { name: "Firebase", icon: <SiFirebase /> },
+        ]
     },
+    {
+        title: "Tools & Platforms",
+        skills: [
+            { name: "VS Code", icon: <VscVscode /> },
+            { name: "Android Studio", icon: <SiAndroidstudio /> },
+            { name: "Gradle", icon: <SiGradle /> },
+            { name: "Photoshop", icon: <SiAdobephotoshop /> },
+            { name: "Git", icon: <SiGit /> },
+            { name: "GitHub", icon: <SiGithub /> },
+            { name: "GitLab", icon: <SiGitlab /> },
+        ]
+    }
 ];
 
 export default function TestimonialSlider() {
-    const [index, setIndex] = useState(0);
-
-    const next = () => setIndex((i) => (i + 1) % testimonials.length);
-    const prev = () => setIndex((i) => (i - 1 + testimonials.length) % testimonials.length);
+    // Flatten skills for the loop
+    const allSkills = categories.flatMap(cat => cat.skills);
 
     return (
-        <section className="min-h-screen flex items-center justify-center bg-black relative z-10">
-            <div className="max-w-6xl mx-auto px-4 w-full">
-                <h3 className="text-copper text-sm font-mono mb-20 uppercase tracking-widest text-center">User Feedback Data</h3>
+        <section id="skills" className="min-h-[50vh] flex flex-col justify-center bg-white relative z-10 py-24 border-b border-neutral-100">
+            <h3 className="text-neutral-400 text-sm font-mono mb-16 uppercase tracking-widest text-center">Technical Arsenal</h3>
 
-                <div className="relative overflow-hidden min-h-[400px] flex items-center">
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ duration: 0.5 }}
-                        className="text-center w-full"
-                    >
-                        <p className="text-3xl md:text-6xl font-light italic leading-tight mb-12 text-neutral-300">
-                            "{testimonials[index].quote}"
-                        </p>
-                        <div>
-                            <h4 className="text-xl font-bold text-white uppercase">{testimonials[index].author}</h4>
-                            <p className="text-copper tracking-widest text-sm mt-2">{testimonials[index].role}</p>
+            {/* Top Loop */}
+            <div className="py-8 mb-12 opacity-30 pointer-events-none">
+                <LogoLoop items={allSkills} direction="left" speed={30} />
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                    {categories.map((category, idx) => (
+                        <div key={idx} className="flex flex-col gap-6">
+                            <h4 className="text-xl font-bold text-neutral-800 border-b border-neutral-200 pb-2">{category.title}</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                {category.skills.map((skill, i) => (
+                                    <div key={i} className="flex items-center gap-4 group">
+                                        <span className="text-4xl text-neutral-400 group-hover:text-black transition-colors duration-300">
+                                            {skill.icon}
+                                        </span>
+                                        <span className="text-lg font-medium text-neutral-500 group-hover:text-neutral-900 transition-colors duration-300">
+                                            {skill.name}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </motion.div>
+                    ))}
                 </div>
+            </div>
 
-                <div className="flex justify-center gap-4 mt-8">
-                    <button onClick={prev} className="p-4 border border-neutral-800 rounded-full hover:bg-neutral-800 transition-colors text-white">&larr;</button>
-                    <button onClick={next} className="p-4 border border-neutral-800 rounded-full hover:bg-neutral-800 transition-colors text-white">&rarr;</button>
-                </div>
+            {/* Bottom Loop */}
+            <div className="py-8 mt-12 opacity-30 pointer-events-none">
+                <LogoLoop items={[...allSkills].reverse()} direction="right" speed={30} />
             </div>
         </section>
     );
