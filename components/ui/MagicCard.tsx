@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 
 interface MagicCardProps {
@@ -23,6 +23,14 @@ export default function MagicCard({
     const ref = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const [clickEffect, setClickEffect] = useState<{ x: number; y: number; id: number }[]>([]);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     // Mouse position for Spotlight
     const mouseX = useSpring(0, { bounce: 0 });
@@ -40,8 +48,17 @@ export default function MagicCard({
     const cardX = useTransform(x, [-0.5, 0.5], [-10, 10]);
     const cardY = useTransform(y, [-0.5, 0.5], [-10, 10]);
 
+    const gradientBackground = useMotionTemplate`
+        radial-gradient(
+            ${gradientSize}px circle at ${mouseX}px ${mouseY}px,
+            ${gradientColor},
+            ${gradientColor2 ? gradientColor2 + "," : ""}
+            transparent 80%
+        )
+    `;
+
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        if (!ref.current) return;
+        if (!ref.current || isMobile) return;
 
         const rect = ref.current.getBoundingClientRect();
         const width = rect.width;
@@ -58,7 +75,7 @@ export default function MagicCard({
         const yPct = (clientY / height) - 0.5;
         x.set(xPct);
         y.set(yPct);
-    }, [mouseX, mouseY, x, y]);
+    }, [mouseX, mouseY, x, y, isMobile]);
 
     const handleMouseLeave = () => {
         setIsHovered(false);
@@ -89,13 +106,13 @@ export default function MagicCard({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
-            style={{
+            style={!isMobile ? {
                 rotateX,
                 rotateY,
                 x: cardX,
                 y: cardY,
                 transformStyle: "preserve-3d",
-            }}
+            } : undefined}
             className={`
                 relative h-full w-full rounded-2xl border transition-all duration-200
                 bg-neutral-100 backdrop-blur-sm
@@ -104,7 +121,7 @@ export default function MagicCard({
             `}
         >
             {/* 1. Stars Effect Background */}
-            <div className={`absolute inset-0 z-0 transition-opacity duration-500 ${isHovered ? "opacity-100" : "opacity-30"}`}>
+            <div className={`absolute inset-0 z-0 transition-opacity duration-500 ${isHovered && !isMobile ? "opacity-100" : "opacity-30"}`}>
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
                 {/* Simulated Stars with CSS radial gradients */}
                 <div
@@ -124,20 +141,15 @@ export default function MagicCard({
             </div>
 
             {/* 2. Silver Spotlight Effect */}
-            <motion.div
-                className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 z-10"
-                style={{
-                    opacity: isHovered ? 1 : 0,
-                    background: useMotionTemplate`
-                        radial-gradient(
-                            ${gradientSize}px circle at ${mouseX}px ${mouseY}px,
-                            ${gradientColor},
-                            ${gradientColor2 ? gradientColor2 + "," : ""}
-                            transparent 80%
-                        )
-                    `,
-                }}
-            />
+            {!isMobile && (
+                <motion.div
+                    className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 z-10"
+                    style={{
+                        opacity: isHovered ? 1 : 0,
+                        background: gradientBackground,
+                    }}
+                />
+            )}
 
             {/* 3. Click Ripple Effect */}
             {clickEffect.map((click) => (
@@ -155,7 +167,7 @@ export default function MagicCard({
             ))}
 
             {/* Content with minimal Z-index to sit above BG but below interactions if needed */}
-            <div className="relative z-30 h-full w-full p-1" style={{ transform: "translateZ(20px)" }}>
+            <div className="relative z-30 h-full w-full p-1" style={{ transform: !isMobile ? "translateZ(20px)" : "none" }}>
                 {children}
             </div>
         </motion.div>

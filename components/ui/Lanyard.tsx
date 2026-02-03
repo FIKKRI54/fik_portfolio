@@ -71,7 +71,7 @@ export default function Lanyard({
         <div className="lanyard-wrapper">
             <Canvas
                 camera={{ position, fov }}
-                dpr={[1, isMobile ? 1 : 1.5]} // Force 1.0 DPR on mobile for performance
+                dpr={[1, 2]} // Improved quality for all devices
                 gl={{ alpha: true }}
                 onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
             >
@@ -272,7 +272,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
                 <meshLineMaterial
                     color="white"
                     depthTest={false}
-                    resolution={new THREE.Vector2(isMobile ? 1000 : 2000, 1000)}
+                    resolution={new THREE.Vector2(2000, 1000)}
                     useMap={1}
                     map={texture}
                     repeat={[-2, 1]} // Stretched more (-4 -> -6)
