@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useScroll, useMotionValueEvent, useTransform, motion, AnimatePresence } from "framer-motion";
 
+import { AnimatedBackground } from "./ui/AnimatedBackground";
+
 // Configuration
 const TOTAL_SEQ_IMAGES = 240;
 const DESKTOP_STEP = 2; // Loads 120 frames
@@ -56,11 +58,17 @@ export default function SequenceScroll() {
         return () => window.removeEventListener("resize", checkDevice);
     }, []);
 
-    // Preload Images with optimized loading
+    // Preload Images with optimized loading (DESKTOP ONLY)
     useEffect(() => {
+        // Skip image loading on mobile
+        if (isMobile) {
+            setLoadedCount(TOTAL_SEQ_IMAGES); // Simulate loaded
+            return;
+        }
+
         const loadedImages: HTMLImageElement[] = [];
         let count = 0;
-        const step = isMobile ? MOBILE_STEP : DESKTOP_STEP;
+        const step = DESKTOP_STEP;
         // totalFrames is derived dynamically
         // const totalFrames = Math.ceil(TOTAL_SEQ_IMAGES / step);
 
@@ -112,9 +120,44 @@ export default function SequenceScroll() {
         setImages(loadedImages);
     }, [isMobile, supportsWebP]);
 
+    // Eagerly render first frame on mount to prevent white flash
+    useEffect(() => {
+        if (isMobile) return;
+
+        const img = new Image();
+        const extension = "webp"; // Assuming WebP support initially for speed, fallback handled elsewhere
+        // But for the very first frame, let's keep it simple and try to load it ASAP
+        img.src = `/sequence-webp/ezgif-frame-001.webp`;
+
+        img.onload = () => {
+            if (canvasRef.current) {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext("2d", { alpha: false });
+                if (ctx) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+
+                    // Initial draw logic (duplicate of renderFrame but standalone for speed)
+                    const w = canvas.width;
+                    const h = canvas.height;
+                    const imgW = img.width;
+                    const imgH = img.height;
+                    const scale = Math.max(w / imgW, h / imgH);
+                    const x = (w - imgW * scale) / 2;
+                    const y = (h - imgH * scale) / 2;
+
+                    ctx.drawImage(img, x, y, imgW * scale, imgH * scale);
+                    // Also set it in the images array if possible, or let the main preloader overwrite
+                }
+            }
+        };
+    }, [isMobile]);
+
     // Animate Visual Progress
     useEffect(() => {
-        const step = isMobile ? MOBILE_STEP : DESKTOP_STEP;
+        if (isMobile) return; // Skip visual progress on mobile
+
+        const step = DESKTOP_STEP;
         const totalFrames = Math.ceil(TOTAL_SEQ_IMAGES / step);
         const target = Math.round((loadedCount / totalFrames) * 100);
 
@@ -148,8 +191,7 @@ export default function SequenceScroll() {
         const imgW = img.width;
         const imgH = img.height;
 
-        // Mobile: Contain (show full image w/o crop). Desktop: Cover (fill screen).
-        // REVERTED: User requested loopback to Cover (Math.max)
+        // Desktop: Cover (fill screen).
         const scale = Math.max(w / imgW, h / imgH);
 
         const x = (w - imgW * scale) / 2;
@@ -159,6 +201,11 @@ export default function SequenceScroll() {
     }, [images, isMobile]);
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        if (isMobile) {
+            if (latest > 0.01 && showIntro) setShowIntro(false);
+            return;
+        }
+
         if (latest > 0.01 && showIntro) {
             setShowIntro(false);
         }
@@ -184,6 +231,8 @@ export default function SequenceScroll() {
 
     // Handle Resize with debouncing
     useEffect(() => {
+        if (isMobile) return;
+
         let resizeTimeout: NodeJS.Timeout;
 
         const handleResize = () => {
@@ -211,29 +260,33 @@ export default function SequenceScroll() {
             window.removeEventListener("resize", handleResize);
             clearTimeout(resizeTimeout);
         };
-    }, [renderFrame]);
+    }, [renderFrame, isMobile]);
 
     return (
         <div id="hero" ref={targetRef} className="relative h-[400vh] bg-white">
             <div className="sticky top-0 h-screen w-full overflow-hidden">
-                <canvas
-                    ref={canvasRef}
-                    className="w-full h-full block object-cover"
-                    style={{ willChange: 'contents' }} // GPU hint for canvas
-                />
+                {isMobile ? (
+                    <AnimatedBackground />
+                ) : (
+                    <canvas
+                        ref={canvasRef}
+                        className="w-full h-full block object-cover"
+                        style={{ willChange: 'contents' }} // GPU hint for canvas
+                    />
+                )}
 
                 {/* Text Overlays */}
                 <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-center items-center">
 
-                    {/* 0% - Start Text */}
+                    {/* 0% - Start Text (MOBILE ONLY) */}
                     <AnimatePresence>
-                        {showIntro && (
+                        {showIntro && isMobile && (
                             <motion.div
                                 style={{ opacity: opacity1 }}
                                 exit={{ opacity: 0 }}
                                 className="absolute text-center px-4"
                             >
-                                <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-none">
+                                <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-none mix-blend-difference text-white">
                                     Mohamad Fikri<br />Bin Bukhari
                                 </h1>
                                 <div className="mt-8 inline-block">
@@ -245,9 +298,28 @@ export default function SequenceScroll() {
                         )}
                     </AnimatePresence>
 
+                    {/* Scroll Down Indicator */}
+                    <motion.div
+                        style={{ opacity: opacity1 }}
+                        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+                    >
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">Scroll</span>
+                        <motion.div
+                            animate={{ y: [0, 6, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-5 h-8 border-[1.5px] border-neutral-400 rounded-full flex justify-center p-1"
+                        >
+                            <motion.div
+                                animate={{ y: [0, 4, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                className="w-0.5 h-1.5 bg-neutral-400 rounded-full"
+                            />
+                        </motion.div>
+                    </motion.div>
+
                     {/* 30% - Left */}
                     <motion.div style={{ opacity: opacity2 }} className="absolute left-6 md:left-24 top-1/2 -translate-y-1/2 text-left max-w-xl px-4">
-                        <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight">
+                        <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight mix-blend-difference text-white">
                             Building Scalable.<br />
                             <span className="text-white bg-neutral-900/90 px-4 py-1 rounded-xl shadow-lg leading-tight decoration-clone box-decoration-clone">Digital Solutions.</span>
                         </h2>
@@ -255,7 +327,7 @@ export default function SequenceScroll() {
 
                     {/* 60% - Right */}
                     <motion.div style={{ opacity: opacity3 }} className="absolute right-6 md:right-24 top-1/2 -translate-y-1/2 text-right max-w-xl px-4">
-                        <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight">
+                        <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight mix-blend-difference text-white">
                             From Concept<br />
                             To <span className="text-white bg-neutral-900/90 px-4 py-1 rounded-xl shadow-lg leading-tight decoration-clone box-decoration-clone">Deployment.</span>
                         </h2>
@@ -266,7 +338,7 @@ export default function SequenceScroll() {
                         style={{ opacity: opacity4, scale: scaleCTA }}
                         className="absolute text-center px-4 pointer-events-auto flex flex-col items-center"
                     >
-                        <h2 className="text-5xl md:text-8xl font-bold text-black mb-8 tracking-tighter uppercase">
+                        <h2 className="text-5xl md:text-8xl font-bold text-black mb-8 tracking-tighter uppercase mix-blend-difference text-white">
                             Mohamad Fikri
                         </h2>
                         <div className="mb-8">
@@ -278,8 +350,8 @@ export default function SequenceScroll() {
 
                 </div>
 
-                {/* Loading Indicator */}
-                {visualProgress < 100 && (
+                {/* Loading Indicator (DESKTOP ONLY) */}
+                {!isMobile && visualProgress < 100 && (
                     <div className="absolute inset-0 flex items-center justify-center text-black z-50 bg-white">
                         <div className="text-center">
                             <div className="text-6xl font-bold mb-4 font-mono">{visualProgress}%</div>
