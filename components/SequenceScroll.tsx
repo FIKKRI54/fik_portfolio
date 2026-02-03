@@ -4,8 +4,9 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useScroll, useMotionValueEvent, useTransform, motion, AnimatePresence } from "framer-motion";
 
 // Configuration
-const DESKTOP_FRAME_COUNT = 240;
-const MOBILE_FRAME_COUNT = 120; // Half frames on mobile for faster loading
+const TOTAL_SEQ_IMAGES = 240;
+const DESKTOP_STEP = 2; // Loads 120 frames
+const MOBILE_STEP = 4; // Loads 60 frames
 
 // Check WebP support
 const checkWebPSupport = (): Promise<boolean> => {
@@ -28,7 +29,7 @@ export default function SequenceScroll() {
     const lastFrameRef = useRef<number>(-1);
     const rafIdRef = useRef<number>(0);
 
-    const frameCount = isMobile ? MOBILE_FRAME_COUNT : DESKTOP_FRAME_COUNT;
+    const frameCount = isMobile ? Math.ceil(TOTAL_SEQ_IMAGES / MOBILE_STEP) : Math.ceil(TOTAL_SEQ_IMAGES / DESKTOP_STEP);
 
     const { scrollYProgress } = useScroll({
         target: targetRef,
@@ -59,8 +60,9 @@ export default function SequenceScroll() {
     useEffect(() => {
         const loadedImages: HTMLImageElement[] = [];
         let count = 0;
-        const totalFrames = isMobile ? MOBILE_FRAME_COUNT : DESKTOP_FRAME_COUNT;
-        const frameStep = isMobile ? 2 : 1; // Skip every other frame on mobile
+        const step = isMobile ? MOBILE_STEP : DESKTOP_STEP;
+        // totalFrames is derived dynamically
+        // const totalFrames = Math.ceil(TOTAL_SEQ_IMAGES / step);
 
         const updateCount = () => {
             count++;
@@ -74,12 +76,12 @@ export default function SequenceScroll() {
         // Priority load first 30 frames
         const priorityFrames = 30;
 
-        for (let i = 1; i <= DESKTOP_FRAME_COUNT; i += frameStep) {
+        for (let i = 1; i <= TOTAL_SEQ_IMAGES; i += step) {
             const img = new Image();
             const frameNumber = i.toString().padStart(3, "0");
 
             // Add loading priority for first frames
-            if (i <= priorityFrames) {
+            if (i <= priorityFrames * step) {
                 (img as any).fetchPriority = "high";
             }
             // IMPORTANT: Do NOT set loading="lazy" for preloaded images!
@@ -112,7 +114,9 @@ export default function SequenceScroll() {
 
     // Animate Visual Progress
     useEffect(() => {
-        const target = Math.round((loadedCount / (isMobile ? MOBILE_FRAME_COUNT : DESKTOP_FRAME_COUNT)) * 100);
+        const step = isMobile ? MOBILE_STEP : DESKTOP_STEP;
+        const totalFrames = Math.ceil(TOTAL_SEQ_IMAGES / step);
+        const target = Math.round((loadedCount / totalFrames) * 100);
 
         if (visualProgress >= target) return;
 
@@ -144,12 +148,15 @@ export default function SequenceScroll() {
         const imgW = img.width;
         const imgH = img.height;
 
+        // Mobile: Contain (show full image w/o crop). Desktop: Cover (fill screen).
+        // REVERTED: User requested loopback to Cover (Math.max)
         const scale = Math.max(w / imgW, h / imgH);
+
         const x = (w - imgW * scale) / 2;
         const y = (h - imgH * scale) / 2;
 
         ctx.drawImage(img, x, y, imgW * scale, imgH * scale);
-    }, [images]);
+    }, [images, isMobile]);
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         if (latest > 0.01 && showIntro) {
@@ -229,7 +236,11 @@ export default function SequenceScroll() {
                                 <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-none">
                                     Mohamad Fikri<br />Bin Bukhari
                                 </h1>
-                                <p className="text-xl md:text-3xl text-neutral-200 tracking-[0.2em] mt-8 uppercase font-light bg-black inline-block px-4 py-2">Full Stack Developer</p>
+                                <div className="mt-8 inline-block">
+                                    <p className="text-sm md:text-base text-white tracking-[0.3em] uppercase font-medium bg-neutral-900/90 backdrop-blur-md px-8 py-3 rounded-full border border-neutral-800 shadow-2xl">
+                                        Full Stack Developer
+                                    </p>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -238,7 +249,7 @@ export default function SequenceScroll() {
                     <motion.div style={{ opacity: opacity2 }} className="absolute left-6 md:left-24 top-1/2 -translate-y-1/2 text-left max-w-xl px-4">
                         <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight">
                             Building Scalable.<br />
-                            <span className="text-neutral-200 bg-black px-4 leading-tight decoration-clone box-decoration-clone">Digital Solutions.</span>
+                            <span className="text-white bg-neutral-900/90 px-4 py-1 rounded-xl shadow-lg leading-tight decoration-clone box-decoration-clone">Digital Solutions.</span>
                         </h2>
                     </motion.div>
 
@@ -246,7 +257,7 @@ export default function SequenceScroll() {
                     <motion.div style={{ opacity: opacity3 }} className="absolute right-6 md:right-24 top-1/2 -translate-y-1/2 text-right max-w-xl px-4">
                         <h2 className="text-4xl md:text-6xl font-bold text-black leading-tight">
                             From Concept<br />
-                            To <span className="text-neutral-200 bg-black px-4 leading-tight decoration-clone box-decoration-clone">Deployment.</span>
+                            To <span className="text-white bg-neutral-900/90 px-4 py-1 rounded-xl shadow-lg leading-tight decoration-clone box-decoration-clone">Deployment.</span>
                         </h2>
                     </motion.div>
 
@@ -258,9 +269,11 @@ export default function SequenceScroll() {
                         <h2 className="text-5xl md:text-8xl font-bold text-black mb-8 tracking-tighter uppercase">
                             Mohamad Fikri
                         </h2>
-                        <h3 className="text-2xl md:text-4xl text-neutral-200 tracking-[0.2em] uppercase font-light mb-8 bg-black inline-block px-6 py-2">
-                            Full Stack Developer
-                        </h3>
+                        <div className="mb-8">
+                            <h3 className="text-base md:text-lg text-white tracking-[0.3em] uppercase font-medium bg-neutral-900/90 backdrop-blur-md px-10 py-4 rounded-full border border-neutral-800 shadow-2xl inline-block">
+                                Full Stack Developer
+                            </h3>
+                        </div>
                     </motion.div>
 
                 </div>

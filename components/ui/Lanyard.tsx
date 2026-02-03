@@ -39,19 +39,39 @@ export default function Lanyard({
     fov = 20,
     transparent = false
 }: LanyardProps) {
-    const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         const handleResize = (): void => setIsMobile(window.innerWidth < 768);
+        handleResize(); // Initial check on mount
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    if (false) {
+        return (
+            <div className="lanyard-wrapper flex items-center justify-center min-h-[400px]">
+                <div className="relative w-64 h-96 bg-neutral-900 rounded-2xl border border-neutral-800 flex flex-col items-center justify-center p-6 shadow-2xl">
+                    {/* Simulated Strap Connection */}
+                    <div className="absolute -top-4 w-4 h-8 bg-neutral-700 rounded-full z-0" />
+
+                    <div className="z-10 w-full h-full bg-neutral-950 rounded-xl border border-neutral-800/50 flex flex-col items-center justify-center text-neutral-500 font-mono text-sm tracking-widest uppercase gap-y-1">
+                        <div className="w-20 h-20 bg-neutral-800 rounded-full mb-6 border border-neutral-700 flex items-center justify-center">
+                            <span className="text-2xl font-bold text-neutral-600">MF</span>
+                        </div>
+                        <span className="text-white font-bold">Fikri</span>
+                        <span className="text-neutral-600 text-[10px]">Developer</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="lanyard-wrapper">
             <Canvas
                 camera={{ position, fov }}
-                dpr={[1, isMobile ? 1.5 : 2]}
+                dpr={[1, isMobile ? 1 : 1.5]} // Force 1.0 DPR on mobile for performance
                 gl={{ alpha: true }}
                 onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
             >
@@ -59,7 +79,7 @@ export default function Lanyard({
                 <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
                     <Band isMobile={isMobile} />
                 </Physics>
-                <Environment blur={0.75}>
+                <Environment blur={isMobile ? 0 : 0.75}>
                     <Lightformer
                         intensity={2}
                         color="white"

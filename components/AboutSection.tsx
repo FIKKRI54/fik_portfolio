@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Lanyard from "./ui/Lanyard";
 
 export default function AboutSection() {
-    const text = "Final-year Computer Science student seeking an internship placement. Possesses strong communication and leadership skills with a proven ability to work in teams to build full-stack web,system,Ai model and mobile applications.";
+    const text = "Mohamad Fikri Bin Bukhari,I am a Final-year Computer Science student seeking an internship placement. Possesses strong communication and leadership skills with a proven ability to work in teams to build full-stack web, system, AI model and mobile applications.";
     const words = text.split(" ");
 
     return (
@@ -12,7 +12,7 @@ export default function AboutSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto w-full">
                 <div className="text-left">
                     <h3 className="text-neutral-500 text-sm font-mono mb-8 uppercase tracking-widest">About Me</h3>
-                    <p className="text-3xl md:text-5xl font-medium leading-tight text-neutral-400 flex flex-wrap gap-x-3">
+                    <p className="text-xl md:text-5xl font-medium leading-tight text-neutral-400 flex flex-wrap gap-x-1.5 md:gap-x-3">
                         {words.map((word, i) => (
                             <motion.span
                                 key={i}
