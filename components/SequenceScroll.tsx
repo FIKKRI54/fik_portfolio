@@ -46,6 +46,9 @@ export default function SequenceScroll() {
     const opacity4 = useTransform(scrollYProgress, [0.9, 1], [0, 1]);
     const scaleCTA = useTransform(scrollYProgress, [0.9, 1], [0.8, 1]);
 
+    // Mobile specific opacity: Stay visible until 15%, then fade out by 25%
+    const opacityMobile = useTransform(scrollYProgress, [0, 0.15, 0.25], [1, 1, 0]);
+
     // Detect mobile and WebP support
     useEffect(() => {
         setIsMounted(true);
@@ -195,7 +198,12 @@ export default function SequenceScroll() {
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         if (isMobile) {
-            if (latest > 0.01 && showIntro) setShowIntro(false);
+            // On mobile, hide intro only after it has faded out (approx > 0.25)
+            if (latest > 0.26 && showIntro) {
+                setShowIntro(false);
+            } else if (latest < 0.25 && !showIntro) {
+                setShowIntro(true);
+            }
             return;
         }
 
@@ -283,7 +291,7 @@ export default function SequenceScroll() {
                     <AnimatePresence>
                         {showIntro && (
                             <motion.div
-                                style={{ opacity: opacity1 }}
+                                style={{ opacity: isMobile ? opacityMobile : opacity1 }}
                                 exit={{ opacity: 0 }}
                                 className="absolute text-center px-4"
                             >

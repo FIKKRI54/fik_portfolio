@@ -6,16 +6,16 @@ import MagicCard from "./ui/MagicCard";
 export default function BentoGrid() {
     const experienceItems = [
         {
-            title: "AI Sentiment Analysis Research",
+            title: "Multitask Sentiment Analysis Model Developer",
             company: "Final Year Project",
             period: "2025 - Present",
-            description: "Creating a sentiment analysis recommendation system for medical tourism in Malaysia using RoBERTa-CNN models. Managing data collection and training the AI model to understand different opinions.",
+            description: "Creating a multitask sentiment analysis model for medical tourism in Malaysia using RoBERTa-CNN models. Managing data collection and training the AI model to understand different opinions.",
             className: "md:col-span-2",
-            tags: ["AI Research", "RoBERTa-CNN", "Python"]
+            tags: ["AI Research", "RoBERTa-CNN", "Python", "PyTorch", "Tensorflow", "Hugging Face"]
         },
         {
             title: "Full Stack Developer",
-            company: "KKD PUSPAL (Isianpadu Systems)",
+            company: "KKD PUSPAL (Isianpadu Systems-INTERN)",
             period: "2023 - 2024",
             description: "Developed the front-end and created the back-end of the Foreign Film & Artist Performance module using Laravel and React.js. Improved site speed and performance to handle high traffic.",
             className: "md:col-span-1",
@@ -23,7 +23,7 @@ export default function BentoGrid() {
         },
         {
             title: "IT Support",
-            company: "e-Tauliah (Isianpadu Systems)",
+            company: "e-Tauliah (Isianpadu Systems-INTERN)",
             period: "2023 - 2024",
             description: "Fixed bugs in the digital teaching certificate system by working closely with IT staff. Kept the system running smoothly and helped users solve technical problems quickly.",
             className: "md:col-span-1",
@@ -31,7 +31,7 @@ export default function BentoGrid() {
         },
         {
             title: "Full Stack Developer",
-            company: "RISDA IPMIS (Isianpadu Systems)",
+            company: "RISDA IPMIS (Isianpadu Systems-INTERN)",
             period: "2023 - 2024",
             description: "Built server-side logic for a reporting system with ASP.NET framework. Designed a simple user interface and created routines to quickly find and show data.",
             className: "md:col-span-2",
